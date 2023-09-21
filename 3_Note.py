@@ -2,17 +2,15 @@
 # 全トランスフォームを適用しないと、拡大縮小の倍率がおかしくなる
 # 屋根メッシュのみにしておく。.shpは消す
 import bpy
-
+import time
 # シーン内のすべてのオブジェクトの名前を取得し、配列に保存
 object_names = [obj.name for obj in bpy.context.scene.objects]
-# object_names 配列に名前が保存されました
-print(object_names)
 
 # 屋根をブリーリアンで削る
-def apply_boolean_difference(boolee, booler, magnification_power=4):
+def apply_boolean_difference(boolee, booler, magnification_power):
     if boolee is not None and booler is not None:
         # boolerオブジェクトの初期スケールを保存
-        initial_scale = booler.scale.copy()
+        # initial_scale = booler.scale.copy()
 
         # boolerオブジェクトをアクティブに設定
         bpy.context.view_layer.objects.active = booler
@@ -38,29 +36,13 @@ def apply_boolean_difference(boolee, booler, magnification_power=4):
         bpy.ops.object.modifier_apply(modifier=bool_mod.name)
 
         # boolerオブジェクトのスケールを元に戻す
-        booler.scale = initial_scale
+        # booler.scale = initial_scale
+        booler.scale = (1,1,1)
 
-# シーン内のオブジェクト数を取得
-def count_objects_in_scene():
-    # シーン内のすべてのオブジェクトを取得
-    objects = bpy.context.scene.objects
-
-    # カウント用の変数を初期化
-    object_count = 0
-
-    # オブジェクトをカウント
-    for obj in objects:
-        if obj.type == 'MESH':  # メッシュオブジェクトの場合
-            object_count += 1
-
-    return object_count
-
-
-# MESH_005_mesh_オブジェクトをbooleeに格納
-boolee = bpy.data.objects.get("MESH_005_mesh_")
-
-# MESH_006_mesh_オブジェクトをboolerに格納
-booler = bpy.data.objects.get("MESH_006_mesh_")
-
-# 関数を呼び出してブール演算を適用
-apply_boolean_difference(boolee, booler, magnification_power=4)
+for i in range(len(object_names)):
+    print(i)
+    time.sleep(0.5)
+    boolee = bpy.data.objects.get(object_names[i])
+    booler = bpy.data.objects.get(object_names[(i + 1) % len(object_names)])
+    apply_boolean_difference(boolee, booler, 4)
+    bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
